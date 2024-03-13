@@ -53,6 +53,8 @@ import {
 const App = () => {
   const [loggedin, setLoggedin] = useState(false);
   const [user, setUser] = useState({});
+  const [loading, setLoading] = useState(true);
+
 
   function signUp() {
     createUserWithEmailAndPassword(auth, "tim.mota21@gmail.com", "password")
@@ -72,10 +74,23 @@ const App = () => {
     setLoggedin(false)
   }
 
+  useEffect(() => {
+         onAuthStateChanged(auth, (loggedin) => {
+    
+           if (loggedin) {
+             setLoggedin(true);
+           } else{
+            setLoggedin(false)
+           }
+           setLoading(false)
+           
+         });
+       }, []);
+
   return (
     <nav>
       <div className="all">
-        {loggedin === false ? (
+        {loading ? "loading" : loggedin === false ? (
           <div>
             <button onClick={() => signUp()}> Sign up </button>
             <button onClick={() => logIn()}> Log in </button>
