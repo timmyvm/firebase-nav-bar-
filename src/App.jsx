@@ -2,7 +2,17 @@ import { useState, useEffect } from "react";
 import "./App.css";
 import { auth } from "./Firebase/firebase.js";
 import { db } from "./Firebase/firebase.js";
-import { collection, addDoc, getDocs, query, where } from "firebase/firestore";
+import {
+  collection,
+  addDoc,
+  getDoc,
+  getDocs,
+  query,
+  where,
+  doc,
+  updateDoc,
+  deleteDoc,
+} from "firebase/firestore";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -34,6 +44,41 @@ function App() {
       collection(db, "posts"),
       where("uid", "==", user.uid)
     );
+
+    const { docs } = await getDocs(postsByUserRef);
+    const posts = docs.map((doc) => doc.data());
+  }
+
+  async function fetchPostById(postId) {
+    const postRef = doc(db, "posts", postId);
+    const postSnap = await getDoc(postRef);
+    const post = postSnap.data();
+
+    return post;
+  }
+
+  async function updatePost() {
+    const postId = "y48H6FYmAeMJ6zE3NepT";
+    const postRef = doc(db, "posts", postId);
+    const currentPost = await fetchPostById(postId);
+
+    console.log(currentPost);
+
+    const newPost = {
+      ...currentPost,
+      caption: "land a 100K job",
+    };
+
+    console.log(newPost);
+
+    updateDoc(postRef, newPost);
+  }
+
+  function deletePost() {
+    const postId = "y48H6FYmAeMJ6zE3NepT";
+    const postRef = doc(db, "posts", postId);
+
+    deleteDoc(postRef);
   }
 
   useEffect(() => {
@@ -72,6 +117,14 @@ function App() {
       {loading ? "Loading..." : user.email}
       <button onClick={() => createNewPost()}> Create New post</button>
       <button onClick={() => fetchAllposts()}> fetch all posts</button>
+      <button onClick={() => fetchAllPostsByUser()}>
+        fetch posts by user id
+      </button>
+      <button onClick={() => fetchPostById("y48H6FYmAeMJ6zE3NepT")}>
+        Fetch Post by Id
+      </button>
+      <button onClick={() => updatePost()}> Update Post </button>
+      <button onClick={() => deletePost()}> Delete Post </button>
     </div>
   );
 }
